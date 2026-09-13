@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GameFinder</title>
+
+<style>
+/* ===== GIAO DIỆN ===== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f2fa;
+    color: #222;
+}
+
+.header {
+    background: #6b4bb6;
+    color: white;
+    padding: 20px;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.container {
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+}
+
+/* Ô tìm kiếm */
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 15px;
+    border-radius: 18px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+
+.search-box button {
+    border: none;
+    border-radius: 18px;
+    padding: 0 20px;
+    background: #6b4bb6;
+    color: white;
+    font-weight: bold;
+}
+
+/* Thể loại */
+
+.section-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 20px 0 10px;
+}
+
+.categories {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.category {
+    white-space: nowrap;
+    padding: 11px 16px;
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+}
+
+.category.active {
+    background: #9379cf;
+    color: white;
+}
+
+/* Danh sách game */
+
+.game-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.game {
+    background: white;
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 5px 20px #00000012;
+}
+
+/* ===== ẢNH GAME ===== */
+/* THÊM */
+
+.game-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 16px;
+    margin-bottom: 12px;
+}
+
+/* Hết phần THÊM */
+
+.game h2 {
+    margin-top: 0;
+}
+
+.game-info {
+    color: #777;
+    margin: 8px 0;
+}
+
+.game button {
+    border: none;
+    padding: 10px 15px;
+    border-radius: 15px;
+    background: #6b4bb6;
+    color: white;
+    font-weight: bold;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="header">
+     GameFinder
+</div>
+
+
+<div class="container">
+
+    <h1>Tìm kiếm</h1>
+
+    <div class="search-box">
+        <input
+            type="text"
+            id="search"
+            placeholder=" Nhập tên game ví dụ (haiten)..."
+        >
+
+        <button onclick="searchGame()">
+            Tìm
+        </button>
+    </div>
+
+
+    <!-- ===== THỂ LOẠI ===== -->
+
+    <div class="section-title">
+        Thể loại
+    </div>
+
+    <div class="categories">
+
+        <div
+            class="category active"
+            onclick="filterGame('all', this)">
+            Tất cả
+        </div>
+
+        <div
+            class="category"
+            onclick="filterGame('FPS', this)">
+           thể loại FPS
+        </div>
+
+        <div
+            class="category"
+            onclick="filterGame('RPG', this)">
+           nhập vai RPG
+        </div>
+
+        <div
+            class="category"
+            onclick="filterGame('Sinh tồn', this)">
+            Sinh tồn Survival
+        </div>
+
+        <div
+            class="category"
+            onclick="filterGame('Phiêu lưu', this)">
+            Phiêu lưu 
+        </div>
+
+    </div>
+
+
+    <!-- ===== GAME ===== -->
+
+    <div class="section-title">
+        Game đề xuất
+    </div>
+
+    <div
+        class="game-list"
+        id="gameList">
+    </div>
+
+</div>
+
+
+<script>
+
+/* =================================================
+   DỮ LIỆU GAME
+
+   MUỐN THÊM GAME → THÊM MỘT DÒNG Ở ĐÂY
+   ================================================= */
+
+const games = [
+
+    {
+        name: "Standoff 2",
+        genre: "FPS",
+        rating: "4.4",
+        device: "Máy yếu",
+        description: "Game FPS online nhẹ.",
+
+        /* THÊM */
+        image: "images/standoff2.jpg",
+
+        link: "https://play.google.com/store/apps/details?id=com.axlebolt.standoff2"
+    },
+
+    {
+        name: "PUBG MOBILE",
+        genre: "FPS",
+        rating: "4.3",
+        device: "Máy trung bình",
+        description: "Battle Royale online.",
+
+        /* THÊM */
+        image: "images/pubg.jpg",
+
+        link: "https://play.google.com/store/apps/details?id=com.tencent.ig"
+    },
+
+    {
+        name: "Terraria",
+        genre: "Sinh tồn",
+        rating: "4.7",
+        device: "Máy yếu",
+        description: "Sinh tồn và khám phá thế giới.",
+
+        /* THÊM */
+        image: "images/terraria.jpg",
+
+        link: "https://play.google.com/store/apps/details?id=com.and.games505.TerrariaPaid"
+    },
+
+    {
+        name: "Minecraft",
+        genre: "Sinh tồn",
+        rating: "4.5",
+        device: "Máy trung bình",
+        description: "Xây dựng và sinh tồn.",
+
+        /* THÊM */
+        image: "images/minecraft.jpg",
+
+        link: "https://play.google.com/store/apps/details?id=com.mojang.minecraftpe"
+    },
+
+    {
+        name: "Genshin Impact",
+        genre: "RPG",
+        rating: "4.3",
+        device: "Máy mạnh",
+        description: "Game RPG thế giới mở.",
+
+        /* THÊM */
+        image: "images/genshin.jpg",
+
+        link: "https://play.google.com/store/apps/details?id=com.miHoYo.GenshinImpact"
+    }
+
+];
+
+
+/* =================================================
+   HIỂN THỊ GAME
+   ================================================= */
+
+function showGames(list) {
+
+    const gameList =
+        document.getElementById("gameList");
+
+    gameList.innerHTML = "";
+
+
+    if (list.length === 0) {
+
+        gameList.innerHTML =
+            "<p>Không tìm thấy game.</p>";
+
+        return;
+    }
+
+
+    list.forEach(game => {
+
+        gameList.innerHTML += `
+
+            <div class="game">
+
+                <!-- THÊM -->
+                <img
+                    class="game-image"
+                    src="${game.image}"
+                    alt="${game.name}">
+                <!-- Hết phần THÊM -->
+
+                <h2>${game.name}</h2>
+
+                <div class="game-info">
+                    Thể loại: ${game.genre}
+                </div>
+
+                <div class="game-info">
+                     Đánh giá: ${game.rating}
+                </div>
+
+                <div class="game-info">
+                     ${game.device}
+                </div>
+
+                <p>
+                    ${game.description}
+                </p>
+
+                <button
+                    onclick="openGame('${game.link}')">
+
+                    Xem game
+
+                </button>
+
+            </div>
+
+        `;
+
+    });
+
+}
+
+
+/* =================================================
+   LỌC THỂ LOẠI
+   ================================================= */
+
+function filterGame(genre, button) {
+
+    document
+        .querySelectorAll(".category")
+        .forEach(btn => {
+
+            btn.classList.remove("active");
+
+        });
+
+
+    button.classList.add("active");
+
+
+    if (genre === "all") {
+
+        showGames(games);
+
+    } else {
+
+        const result =
+            games.filter(game =>
+                game.genre === genre
+            );
+
+        showGames(result);
+
+    }
+
+}
+
+
+/* =================================================
+   TÌM KIẾM
+   ================================================= */
+
+function searchGame() {
+
+    const keyword =
+        document
+        .getElementById("search")
+        .value
+        .toLowerCase();
+
+
+    const result =
+        games.filter(game =>
+            game.name
+            .toLowerCase()
+            .includes(keyword)
+        );
+
+
+    showGames(result);
+
+}
+
+
+/* =================================================
+   MỞ GAME
+   ================================================= */
+
+function openGame(link) {
+
+    window.open(link, "_blank");
+
+}
+
+
+/* HIỂN THỊ BAN ĐẦU */
+
+showGames(games);
+
+</script>
+
+</body>
+</html>
